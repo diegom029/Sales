@@ -1,16 +1,14 @@
-﻿using GalaSoft.MvvmLight.Command;
-using Sales.Common.Models;
-using Sales.Helpers;
-using Sales.Services;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
-using System.Windows.Input;
-using Xamarin.Forms;
-
-namespace Sales.ViewModels
+﻿namespace Sales.ViewModels
 {
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Windows.Input;
+    using Common.Models;
+    using GalaSoft.MvvmLight.Command;
+    using Helpers;
+    using Services;
+    using Xamarin.Forms;
+
     public class ProductsViewModel : BaseViewModel
     {
         private ApiService apiService;
@@ -22,7 +20,7 @@ namespace Sales.ViewModels
         public ObservableCollection<Product> Products
         {
             get { return this.products; }
-            set { this.SetValue(ref this.products, value);  }
+            set { this.SetValue(ref this.products, value); }
         }
 
         public bool IsRefreshing
@@ -41,20 +39,17 @@ namespace Sales.ViewModels
         {
             this.IsRefreshing = true;
 
-            //Validar si hay conexion de internet.
             var connection = await this.apiService.CheckConnection();
-            if(!connection.IsSuccess)
+            if (!connection.IsSuccess)
             {
                 this.IsRefreshing = false;
                 await Application.Current.MainPage.DisplayAlert(Languages.Error, connection.Message, Languages.Accept);
                 return;
             }
 
-            //Asi se obtiene un valor del Diccionario de recursos ubicado en App.xaml
             var url = Application.Current.Resources["UrlAPI"].ToString();
             var prefix = Application.Current.Resources["UrlPrefix"].ToString();
             var controller = Application.Current.Resources["UrlProductsController"].ToString();
-
             var response = await this.apiService.GetList<Product>(url, prefix, controller);
             if (!response.IsSuccess)
             {
@@ -63,13 +58,8 @@ namespace Sales.ViewModels
                 return;
             }
 
-            //Aqui en este punto tenemos una lista en objeto response, y se debe castear.
-
             var list = (List<Product>)response.Result;
-
-            //Con esta list armamos el observable collection
-
-            this.products = new ObservableCollection<Product>(list);
+            this.Products = new ObservableCollection<Product>(list);
             this.IsRefreshing = false;
         }
 

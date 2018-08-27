@@ -1,10 +1,11 @@
-﻿using Sales.Views;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace Sales
 {
+    using Views;
+
     public partial class App : Application
     {
         public App()
