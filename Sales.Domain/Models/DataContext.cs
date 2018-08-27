@@ -2,13 +2,14 @@
 namespace Sales.Domain.Models
 {
     using System.Data.Entity;
+    using Sales.Common.Models;
 
     public class DataContext : DbContext
     {
         public DataContext() : base("DefaultConnection")
         {
         }
-
-        public System.Data.Entity.DbSet<Sales.Common.Models.Product> Products { get; set; }
+        //Esta linea mapea la clase products en la base de datos
+        public DbSet<Product> Products { get; set; }
     }
 }
