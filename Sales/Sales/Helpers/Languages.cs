@@ -62,6 +62,14 @@
         {
             get { return Resource.PricePlaceholder; }
         }
+        public static string Remarks
+        {
+            get { return Resource.Remarks; }
+        }
+        public static string Save
+        {
+            get { return Resource.Save; }
+        }
 
     }
 
