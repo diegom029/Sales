@@ -38,6 +38,31 @@
             get { return Resource.TurnOnInternet; }
         }
 
+        public static string AddProduct
+        {
+            get { return Resource.AddProduct; }
+        }
+
+        public static string Description
+        {
+            get { return Resource.Description; }
+        }
+
+        public static string DescriptionPlaceholder
+        {
+            get { return Resource.DescriptionPlaceholder; }
+        }
+
+        public static string Price
+        {
+            get { return Resource.Price; }
+        }
+
+        public static string PricePlaceholder
+        {
+            get { return Resource.PricePlaceholder; }
+        }
+
     }
 
 }
