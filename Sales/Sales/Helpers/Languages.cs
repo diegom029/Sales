@@ -70,7 +70,12 @@
         {
             get { return Resource.Save; }
         }
+        public static string ChangeImage
+        {
+            get { return Resource.ChangeImage; }
+        }
 
     }
 
 }
+
