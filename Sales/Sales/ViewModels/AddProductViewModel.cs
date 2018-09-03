@@ -2,9 +2,12 @@
 
 namespace Sales.ViewModels
 {
+    using System;
     using System.Windows.Input;
     using GalaSoft.MvvmLight.Command;
     using Helpers;
+    using Plugin.Media;
+    using Plugin.Media.Abstractions;
     using Sales.Common.Models;
     using Services;
     using Xamarin.Forms;
@@ -12,6 +15,11 @@ namespace Sales.ViewModels
     public class AddProductViewModel : BaseViewModel
     {
         #region Attributes
+
+        private MediaFile file;
+
+        private ImageSource imageSource;
+
         private bool isRunning;
 
         private bool isEnabled;
@@ -21,6 +29,13 @@ namespace Sales.ViewModels
         #endregion
 
         #region Properties
+
+        public ImageSource ImageSource
+        {
+            get { return this.imageSource; }
+            set { this.SetValue(ref this.imageSource, value); }
+        }
+
         public string Description { get; set; }
 
         public string Price{ get; set; }
@@ -45,10 +60,64 @@ namespace Sales.ViewModels
         {
             this.IsEnabled = true;
             this.apiService = new ApiService();
+            this.ImageSource = "noproduct";
         }
         #endregion
 
         #region Commands
+
+        public ICommand ChangeImageCommand
+        {
+            get
+            {
+                return new RelayCommand(ChangeImage);
+            }
+        }
+
+        private async void ChangeImage()
+        {
+            await CrossMedia.Current.Initialize();
+
+            var source = await Application.Current.MainPage.DisplayActionSheet(
+            Languages.ImageSource, 
+            Languages.Cancel, 
+            null,
+            Languages.FromGallery,
+            Languages.NewPicture);
+
+            if (source == Languages.Cancel)
+            {
+                this.file = null;
+                return;
+            }
+
+            if (source == Languages.NewPicture)
+            {
+                this.file = await CrossMedia.Current.TakePhotoAsync(
+                    new StoreCameraMediaOptions
+                    {
+                        Directory = "Sample",
+                        Name = "test.jpg",
+                        PhotoSize = PhotoSize.Small,
+                    }
+                );
+            }
+            else
+            {
+                this.file = await CrossMedia.Current.PickPhotoAsync();
+            }
+
+            if (this.file != null)
+            {
+                this.ImageSource = ImageSource.FromStream(() =>
+                {
+                    var stream = this.file.GetStream();
+                    return stream;
+                });
+            }
+        }
+
+
         public ICommand SaveCommand {
             get
             {
@@ -85,14 +154,14 @@ namespace Sales.ViewModels
                     Languages.Accept);
                 return;
             }
-            this.isRunning = true;
-            this.isEnabled = false;
+            this.IsRunning = true;
+            this.IsEnabled = false;
 
             var connection = await this.apiService.CheckConnection();
             if (!connection.IsSuccess)
             {
-                this.isRunning = false;
-                this.isEnabled = true;
+                this.IsRunning = false;
+                this.IsEnabled = true;
                 await Application.Current.MainPage.DisplayAlert(
                     Languages.Error,
                     connection.Message,
@@ -114,8 +183,8 @@ namespace Sales.ViewModels
 
             if (!response.IsSuccess)
             {
-                this.isRunning = false;
-                this.isEnabled = true;
+                this.IsRunning = false;
+                this.IsEnabled = true;
                 await Application.Current.MainPage.DisplayAlert(
                     Languages.Error,
                     response.Message,
@@ -123,8 +192,13 @@ namespace Sales.ViewModels
                 return;
             }
 
-            this.isRunning = false;
-            this.isEnabled = true;
+            var newProduct = (Product)response.Result;
+            var viewModel = ProductsViewModel.GetInstance();
+            viewModel.Products.Add(newProduct);
+
+
+            this.IsRunning = false;
+            this.IsEnabled = true;
 
             await Application.Current.MainPage.Navigation.PopAsync();
 

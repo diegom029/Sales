@@ -75,8 +75,6 @@ namespace Sales.API.Controllers
             product.IsAvailable = true;
             product.PublishOn = DateTime.Now.ToUniversalTime();
 
-
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -91,7 +89,7 @@ namespace Sales.API.Controllers
         [ResponseType(typeof(Product))]
         public async Task<IHttpActionResult> DeleteProduct(int id)
         {
-            Product product = await this.db.Products.FindAsync(id);
+            var product = await this.db.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
